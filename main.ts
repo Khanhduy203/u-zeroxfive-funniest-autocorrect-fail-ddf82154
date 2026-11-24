@@ -33,7 +33,16 @@ function main() {
 
   fs.mkdirSync(outDir, { recursive: true });
   // No trailing newline: the file holds exactly the entry line.
-  fs.writeFileSync(path.join(outDir, "entry.txt"), ENTRY, "utf8");
+  const outPath = path.join(outDir, "entry.txt");
+  fs.writeFileSync(outPath, ENTRY, "utf8");
+  // Read back and verify the written bytes match the entry exactly
+  // before reporting success, so a partial or corrupted write is
+  // caught here instead of silently producing a bad submission.
+  const written = fs.readFileSync(outPath, "utf8");
+  if (written !== ENTRY) {
+    throw new Error("entry.txt does not match the expected entry");
+  }
+  console.log(`wrote entry.txt (${ENTRY.length} chars)`);
 }
 
 main();
